@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEKOCHASE - $NEKO Token on Solana</title>
+<link rel="stylesheet" href="style.css?v=13">
+<link rel="icon" type="image/jpeg" href="image/WhatsApp Image 2026-07-05 at 4.05.38 PM.jpeg">
+
+<!-- Solana Web3.js -->
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Google Fonts -->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Permanent+Marker&display=swap');
+</style>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body class="landing-active">
+
+<!-- Grain Filter overlay -->
+<div class="grain-overlay"></div>
+
+<!-- ==================== LANDING PAGE ==================== -->
+<div id="landing-page" class="font-marker min-h-screen relative z-10">
+
+  <!-- NAVIGATION -->
+  <nav class="absolute top-4 left-0 w-full z-50 px-4 pointer-events-none">
+    <div class="max-w-7xl mx-auto pointer-events-auto">
+      <div class="bg-[#FFFDF7] border-4 border-[#4A3B32] rounded-full px-4 py-2 flex justify-between items-center shadow-[0_6px_0_rgba(74,59,50,0.2)] relative overflow-visible">
+        <a href="#" class="flex items-center gap-2 group z-10">
+          <div class="w-14 h-14 bg-[#6B9AC4] border-4 border-[#4A3B32] rounded-full flex items-center justify-center relative group-hover:rotate-12 transition-transform overflow-hidden">
+            <img src="image/WhatsApp Image 2026-07-05 at 4.05.38 PM.jpeg" onerror="this.src='https://placehold.co/56x56/6B9AC4/FFF?text=🐱'" class="w-full h-full object-cover" alt="NEKO Logo" />
+          </div>
+          <span class="font-comic text-3xl text-[#6B9AC4] text-stroke tracking-wider -rotate-2">NEKO</span>
+        </a>
+
+        <div class="hidden md:flex gap-4 items-center z-10">
+          <a href="#about" class="nav-link pipe-btn bg-[#98D8A2] text-[#4A3B32]">COZY LORE</a>
+          <a href="#game-section" class="nav-link pipe-btn bg-[#0066FF] text-white">PLAY GAME</a>
+          <a href="#gallery-section" class="nav-link pipe-btn bg-[#6B9AC4] text-white">ALBUM</a>
+          <a href="#leaderboard-section" class="nav-link pipe-btn bg-[#FFD738] text-[#4A3B32]">LEADERBOARD</a>
+        </div>
+
+        <div class="hidden md:flex gap-4 items-center z-10">
+          <button id="navWalletBtn" class="pipe-btn bg-[#E57373] text-white" onclick="connectSolanaWallet()">CONNECT WALLET</button>
+          <a href="https://x.com/nekochase_sol" target="_blank" class="pipe-btn bg-[#FFF] text-[#4A3B32] border-[#4A3B32] animate-wiggle">GET $NEKO</a>
+        </div>
+
+        <button onclick="toggleMobileMenu()" class="md:hidden text-[#4A3B32] bg-[#FFFDF7] border-2 border-[#4A3B32] p-2 rounded z-10">
+          <div class="space-y-1.5">
+            <div class="w-8 h-1 bg-[#4A3B32] rounded"></div>
+            <div class="w-8 h-1 bg-[#4A3B32] rounded"></div>
+            <div class="w-8 h-1 bg-[#4A3B32] rounded"></div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden fixed inset-0 z-40 flex-col items-center justify-center pointer-events-auto bg-[#F2E8D5]/95">
+      <div class="w-[300px] h-[300px] bg-[#FFFDF7] rounded-full border-[8px] border-[#4A3B32] flex flex-col items-center justify-center relative shadow-xl">
+        <h3 class="font-comic text-4xl text-[#6B9AC4] mb-4 text-stroke">MENU</h3>
+        <ul class="flex flex-col gap-4 text-center text-2xl">
+          <li><a href="#about" onclick="toggleMobileMenu()" class="nav-link text-[#4A3B32] hover:text-[#98D8A2] block">LORE</a></li>
+          <li><a href="#game-section" onclick="toggleMobileMenu()" class="nav-link text-[#4A3B32] hover:text-[#0066FF] block">PLAY GAME</a></li>
+          <li><a href="#gallery-section" onclick="toggleMobileMenu()" class="nav-link text-[#4A3B32] hover:text-[#6B9AC4] block">ALBUM</a></li>
+          <li><a href="#leaderboard-section" onclick="toggleMobileMenu()" class="nav-link text-[#4A3B32] hover:text-[#FFD738] block">LEADERBOARD</a></li>
+        </ul>
+        <button onclick="toggleMobileMenu()" class="absolute -bottom-8 text-[#E57373] font-comic text-xl bg-[#FFFDF7] border-4 border-[#4A3B32] px-4 py-2 rounded-full">X CLOSE</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Wallet Selection Modal -->
+  <div id="wallet-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div class="comic-panel p-6 bg-[#FFFDF7] border-8 border-[#4A3B32] rounded-3xl max-w-sm w-full relative">
+      <div class="halftone opacity-10"></div>
+      <h3 class="font-comic text-3xl text-center text-[#E57373] text-stroke mb-6">SELECT WALLET</h3>
+      
+      <div class="flex flex-col gap-4">
+        <button onclick="selectSolanaWallet('phantom')" class="pipe-btn bg-[#FFF] text-[#4A3B32] border-[#4A3B32] py-3 text-xl w-full flex items-center justify-center gap-3">
+          <span class="text-2xl">👻</span> Phantom Wallet
+        </button>
+        <button onclick="selectSolanaWallet('solflare')" class="pipe-btn bg-[#FFF] text-[#4A3B32] border-[#4A3B32] py-3 text-xl w-full flex items-center justify-center gap-3">
+          <span class="text-2xl">☀️</span> Solflare Wallet
+        </button>
+        <button onclick="selectSolanaWallet('backpack')" class="pipe-btn bg-[#FFF] text-[#4A3B32] border-[#4A3B32] py-3 text-xl w-full flex items-center justify-center gap-3">
+          <span class="text-2xl">🎒</span> Backpack Wallet
+        </button>
+        <button onclick="selectSolanaWallet('okx')" class="pipe-btn bg-[#FFF] text-[#4A3B32] border-[#4A3B32] py-3 text-xl w-full flex items-center justify-center gap-3">
+          <span class="text-2xl">✖️</span> OKX Wallet
+        </button>
+        <button onclick="selectSolanaWallet('standard')" class="pipe-btn bg-[#FFF] text-[#4A3B32] border-[#4A3B32] py-3 text-xl w-full flex items-center justify-center gap-3">
+          <span class="text-2xl">⚙️</span> Standard Wallet
+        </button>
+      </div>
+      
+      <button onclick="closeWalletModal()" class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[#E57373] font-comic text-xl bg-[#FFFDF7] border-4 border-[#4A3B32] px-4 py-2 rounded-full hover:-translate-y-1 transition-transform">X CLOSE</button>
+    </div>
+  </div>
+
+  <!-- HERO SECTION -->
+  <header class="relative z-10 min-h-screen pt-40 pb-16 px-4 overflow-hidden flex items-center justify-center">
+    
+    <!-- Floating Elements (Pastel) -->
+    <div class="absolute bottom-40 right-10 text-6xl animate-float opacity-80" style="animation-delay: 1s;">✨</div>
+    <div class="absolute top-40 right-20 text-4xl animate-wiggle opacity-60 text-[#E57373] font-bold">+</div>
+    <div class="absolute bottom-20 left-20 text-4xl animate-wiggle opacity-60 text-[#6B9AC4] font-bold">+</div>
+
+    <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative z-20">
+      
+      <!-- Text & Interactive Column -->
+      <div class="text-center lg:text-left order-2 lg:order-1 relative">
+        <!-- Speech Bubble -->
+        <div class="absolute -top-16 left-4 md:-top-16 md:-left-10 lg:-top-16 lg:-left-10 w-32 h-32 bg-[#E57373] rounded-full flex items-center justify-center border-4 border-[#4A3B32] z-[-1] animate-pop overflow-hidden">
+          <img src="image/WhatsApp Image 2026-07-05 at 3.33.31 PM.jpeg" onerror="this.src='https://placehold.co/128x128/E57373/FFF?text=🐱'" class="w-full h-full object-cover" alt="Neko Run">
+        </div>
+
+        <h1 id="hero-title" class="font-comic text-8xl md:text-[10rem] leading-[0.8] mb-6 text-[#6B9AC4] text-stroke drop-shadow-[5px_5px_0_#FFF] transform -rotate-2 cursor-pointer" onclick="spinImage(document.getElementById('hero-img'))">
+          $NEKO
+        </h1>
+
+        <div class="bg-[#FFFDF7] border-4 border-[#4A3B32] p-4 transform rotate-1 shadow-[8px_8px_0_#98D8A2] mb-8 inline-block max-w-lg rounded-xl">
+          <p class="font-marker text-xl text-[#4A3B32]">
+            "Stack green candles, run from the jeet dog! The ultimate chase on Solana."
+          </p>
+        </div>
+
+        <!-- Contract Address Area -->
+        <div class="flex flex-col gap-4 max-w-lg mx-auto lg:mx-0 mb-10">
+          <div class="bg-[#FFF] border-4 border-[#4A3B32] p-2 flex items-center gap-2 shadow-[5px_5px_0_rgba(0,0,0,0.1)] rounded-lg">
+            <span class="font-comic text-[#4A3B32] text-xl px-2">CA:</span>
+            <code id="ca-text" class="font-mono text-[#6B9AC4] font-bold text-sm md:text-lg truncate w-full px-2 py-1">TBA</code>
+            <button class="bg-[#98D8A2] text-[#4A3B32] font-comic border-2 border-[#4A3B32] px-3 py-1 hover:scale-105 rounded" onclick="copyContract(this)">
+              COPY
+            </button>
+          </div>
+        </div>
+
+        <!-- Social Media Buttons -->
+        <div class="flex flex-wrap justify-center lg:justify-start gap-6">
+          <a href="https://x.com/nekochase_sol" target="_blank" class="pipe-btn bg-[#6B9AC4] text-white text-2xl">X (TWITTER)</a>
+          <a href="https://t.me/NEKOCHASE" target="_blank" class="pipe-btn bg-[#98D8A2] text-[#4A3B32] text-2xl">TELEGRAM</a>
+          <a href="https://dexscreener.com/" target="_blank" class="pipe-btn bg-[#FFF] text-[#4A3B32] text-2xl">CHART</a>
+        </div>
+      </div>
+
+      <!-- Image Column -->
+      <div class="relative order-1 lg:order-2 flex justify-center">
+        <img id="hero-img" src="image/WhatsApp Image 2026-07-05 at 4.05.38 PM.jpeg" onerror="this.src='https://placehold.co/400x400/6B9AC4/FFF?text=NEKOCHASE'" alt="Neko Character" class="relative z-10 w-full max-w-lg md:max-w-xl lg:max-w-2xl mx-auto animate-float cursor-pointer hover:scale-110 transition-all duration-200 drop-shadow-[10px_10px_0px_rgba(74,59,50,0.2)] rounded-2xl" onclick="spinImage(this)" />
+      </div>
+    </div>
+  </header>
+
+  <!-- MARQUEE 1 -->
+  <div class="bg-[#6B9AC4] border-y-4 border-[#4A3B32] py-4 relative z-20 overflow-hidden transform -rotate-1 scale-105 shadow-md">
+    <div class="relative flex whitespace-nowrap overflow-hidden">
+      <div class="flex animate-marquee min-w-full">
+        <span class="mx-8 text-4xl font-comic text-white flex items-center gap-4 text-stroke">🟩 RUN FAST /// STACK CANDLES /// PUMP $NEKO /// NO JEETS 🟩</span>
+        <span class="mx-8 text-4xl font-comic text-white flex items-center gap-4 text-stroke">🟩 RUN FAST /// STACK CANDLES /// PUMP $NEKO /// NO JEETS 🟩</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT / LORE SECTION -->
+  <section id="about" class="relative z-10 py-32 border-b-8 border-[#4A3B32] bg-[#FFFDF7]">
+    <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#6B9AC4 2px, transparent 2px); background-size: 20px 20px;"></div>
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      <div class="text-center mb-20">
+        <h2 class="font-comic text-7xl md:text-9xl text-[#6B9AC4] text-stroke drop-shadow-[5px_5px_0_#4A3B32] rotate-1 inline-block">
+          COZY <span class="text-[#98D8A2]">LORE</span>
+        </h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+        <!-- Image Panel -->
+        <div class="comic-panel p-4 bg-white rotate-2">
+          <div class="halftone"></div>
+          <div class="border-4 border-[#4A3B32] relative z-10 rounded-lg overflow-hidden">
+            <img src="image/WhatsApp Image 2026-07-05 at 3.39.39 PM.jpeg" onerror="this.src='https://placehold.co/400x320/98D8A2/4A3B32?text=FIGHT'" alt="Lore German Shepherd and Neko" class="w-full h-auto" />
+          </div>
+          <div class="absolute top-2 left-2 bg-[#E57373] border-2 border-[#4A3B32] px-2 font-comic text-white z-20 rounded">
+            MEMERY
+          </div>
+        </div>
+
+        <!-- Lore Text Bubble -->
+        <div class="relative">
+          <div class="bg-white border-[4px] border-[#4A3B32] p-8 shadow-[10px_10px_0_#E57373] rounded-[30px] relative">
+            <div class="absolute top-10 -left-6 w-0 h-0 border-t-[15px] border-t-transparent border-r-[20px] border-r-[#4A3B32] border-b-[15px] border-b-transparent"></div>
+            <div class="absolute top-10 -left-[18px] w-0 h-0 border-t-[10px] border-t-transparent border-r-[16px] border-r-white border-b-[10px] border-b-transparent z-10"></div>
+
+            <h3 class="font-comic text-5xl mb-4 text-[#6B9AC4] text-stroke">HOW THE CHASE STARTED</h3>
+            <p class="font-marker text-xl text-[#4A3B32] mb-4">
+              Neko is a simple cat chasing financial freedom on Solana. Every day he stacks green candles to escape the matrix.
+            </p>
+            <p class="font-marker text-xl text-[#4A3B32] mb-4">
+              But a giant German Shepherd representing the heavy jeet sellers is always close behind, ready to dump on your gains!
+            </p>
+            <p class="font-marker text-xl text-[#4A3B32]">
+              Dodge red candles, leap over hurdles, fire rockets, and collect green candles. Run together, stack together, and pump $NEKO to the sky! 🟩🚀
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE 2 -->
+  <div class="bg-[#98D8A2] border-y-4 border-[#4A3B32] py-4 relative z-20 overflow-hidden transform rotate-1 scale-105 shadow-md">
+    <div class="relative flex whitespace-nowrap overflow-hidden">
+      <div class="flex animate-marquee min-w-full">
+        <span class="mx-8 text-4xl font-comic text-white flex items-center gap-4 text-stroke">🎮 CHASE GAMEPLAY /// PLAY TO WIN /// STACK TO THE MOON /// 🎮</span>
+        <span class="mx-8 text-4xl font-comic text-white flex items-center gap-4 text-stroke">🎮 CHASE GAMEPLAY /// PLAY TO WIN /// STACK TO THE MOON /// 🎮</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME SECTION -->
+  <section id="game-section" class="relative z-10 py-32 px-4 overflow-hidden border-b-8 border-[#4A3B32]" style="background: radial-gradient(circle at center, #6B9AC4, #4A3B32); background-size: 80px 80px;">
+    <div class="max-w-4xl mx-auto relative z-20">
+      <div class="text-center mb-16">
+        <h2 class="font-comic text-7xl md:text-9xl text-white text-stroke mb-2 drop-shadow-[5px_5px_0_#4A3B32]">
+          PLAY <span class="text-[#FFD738]">NEKO GAME</span>
+        </h2>
+        <div class="inline-block bg-[#FFF] border-2 border-[#4A3B32] px-4 py-1 transform -skew-x-12 rounded shadow-md">
+          <p class="font-mono text-[#4A3B32] text-lg">Help Neko run from the jeet dog!</p>
+        </div>
+      </div>
+
+      <!-- Play Panel -->
+      <div class="comic-panel p-8 bg-white max-w-lg mx-auto">
+        <div class="halftone"></div>
+        <h3 class="font-comic text-3xl text-[#6B9AC4] mb-4 text-stroke text-center">RUNNER REGISTRATION</h3>
+        <div class="flex flex-col gap-4">
+          <!-- Wallet Connect Info -->
+          <div id="walletStatusPanel" class="bg-[#FFFDF7] border-4 border-[#4A3B32] p-4 rounded-xl text-center">
+            <p id="walletStatusText" class="font-mono text-sm text-[#4A3B32] mb-3">Wallet not connected. Connect to play.</p>
+            <button id="playWalletBtn" class="pipe-btn bg-[#E57373] text-white text-lg py-2 px-6" onclick="connectSolanaWallet()">CONNECT WALLET</button>
+          </div>
+
+          <input id="landingPlayerName" type="text" placeholder="Enter your name" maxlength="20" autocomplete="off" class="p-3 border-4 border-[#4A3B32] rounded-xl font-mono text-[#4A3B32] focus:outline-none focus:ring-2 focus:ring-[#6B9AC4] bg-[#FFF]" value="Anonymous Cat" disabled>
+          <input id="landingPlayerTwitter" type="text" placeholder="Twitter username (optional)" maxlength="20" autocomplete="off" class="p-3 border-4 border-[#4A3B32] rounded-xl font-mono text-[#4A3B32] focus:outline-none focus:ring-2 focus:ring-[#E57373] bg-[#FFF]" disabled>
+          <button id="startGameBtn" class="play-game-btn pipe-btn bg-[#9b9b9b] text-white text-3xl py-4 w-full cursor-not-allowed opacity-60" disabled>START CHASE ⚡</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE 3 -->
+  <div class="bg-[#FFD738] border-y-4 border-[#4A3B32] py-4 relative z-20 overflow-hidden transform -rotate-1 scale-105 shadow-md">
+    <div class="relative flex whitespace-nowrap overflow-hidden">
+      <div class="flex animate-marquee min-w-full">
+        <span class="mx-8 text-4xl font-comic text-[#4A3B32] flex items-center gap-4 text-stroke">📸 THE OFFICIAL ALBUM /// GALLERY COVERS /// 📸</span>
+        <span class="mx-8 text-4xl font-comic text-[#4A3B32] flex items-center gap-4 text-stroke">📸 THE OFFICIAL ALBUM /// GALLERY COVERS /// 📸</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GALLERY/ALBUM SECTION -->
+  <section id="gallery-section" class="relative z-10 py-32 border-b-8 border-[#4A3B32]" style="background-color: #9B9B9B;">
+    <div class="absolute inset-0 opacity-15" style="background-image: radial-gradient(#000 2px, transparent 2px); background-size: 30px 30px;"></div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      <div class="text-center mb-20">
+        <h2 class="font-comic text-7xl text-white text-stroke mb-4 drop-shadow-[5px_5px_0_#4A3B32]">NEKO <span class="text-[#FFFDF7]">ALBUM</span></h2>
+        <div class="text-6xl animate-wiggle inline-block">📸</div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+        <!-- FREN #1 -->
+        <div class="comic-panel p-2 bg-white transform rotate-2">
+          <div class="halftone"></div>
+          <div class="relative h-64 w-full overflow-hidden border-2 border-[#4A3B32] rounded">
+            <img src="image/WhatsApp Image 2026-07-05 at 3.33.31 PM.jpeg" onerror="this.src='https://placehold.co/400x400/6B9AC4/FFF?text=FREN+1'" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
+          </div>
+          <div class="p-4 bg-white flex justify-between items-center relative z-20">
+            <span class="font-comic text-2xl text-[#4A3B32]">PHOTO #1</span>
+            <button class="bg-[#E57373] text-white font-comic px-3 py-1 border-2 border-[#4A3B32] hover:bg-[#4A3B32] rounded" onclick="saveImage(this)">SAVE</button>
+          </div>
+        </div>
+
+        <!-- FREN #2 -->
+        <div class="comic-panel p-2 bg-white transform -rotate-1">
+          <div class="halftone"></div>
+          <div class="relative h-64 w-full overflow-hidden border-2 border-[#4A3B32] rounded">
+            <img src="image/WhatsApp Image 2026-07-05 at 3.36.18 PM.jpeg" onerror="this.src='https://placehold.co/400x400/98D8A2/4A3B32?text=FREN+2'" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
+          </div>
+          <div class="p-4 bg-white flex justify-between items-center relative z-20">
+            <span class="font-comic text-2xl text-[#4A3B32]">PHOTO #2</span>
+            <button class="bg-[#E57373] text-white font-comic px-3 py-1 border-2 border-[#4A3B32] hover:bg-[#4A3B32] rounded" onclick="saveImage(this)">SAVE</button>
+          </div>
+        </div>
+
+        <!-- FREN #3 -->
+        <div class="comic-panel p-2 bg-white transform rotate-1">
+          <div class="halftone"></div>
+          <div class="relative h-64 w-full overflow-hidden border-2 border-[#4A3B32] rounded">
+            <img src="image/WhatsApp Image 2026-07-05 at 3.36.40 PM.jpeg" onerror="this.src='https://placehold.co/400x400/E57373/4A3B32?text=FREN+3'" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
+          </div>
+          <div class="p-4 bg-white flex justify-between items-center relative z-20">
+            <span class="font-comic text-2xl text-[#4A3B32]">PHOTO #3</span>
+            <button class="bg-[#E57373] text-white font-comic px-3 py-1 border-2 border-[#4A3B32] hover:bg-[#4A3B32] rounded" onclick="saveImage(this)">SAVE</button>
+          </div>
+        </div>
+
+        <!-- FREN #4 -->
+        <div class="comic-panel p-2 bg-white transform -rotate-2">
+          <div class="halftone"></div>
+          <div class="relative h-64 w-full overflow-hidden border-2 border-[#4A3B32] rounded">
+            <img src="image/WhatsApp Image 2026-07-05 at 4.10.56 PM.jpeg" onerror="this.src='https://placehold.co/400x400/FFD738/4A3B32?text=FREN+4'" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
+          </div>
+          <div class="p-4 bg-white flex justify-between items-center relative z-20">
+            <span class="font-comic text-2xl text-[#4A3B32]">PHOTO #4</span>
+            <button class="bg-[#E57373] text-white font-comic px-3 py-1 border-2 border-[#4A3B32] hover:bg-[#4A3B32] rounded" onclick="saveImage(this)">SAVE</button>
+          </div>
+        </div>
+
+        <!-- VIDEO 1 -->
+        <div class="comic-panel p-2 bg-white transform rotate-1">
+          <div class="halftone"></div>
+          <div class="relative h-64 w-full overflow-hidden border-2 border-[#4A3B32] rounded bg-black">
+            <video src="WhatsApp Video 2026-07-05 at 7.41.32 AM.mp4" controls loop muted class="w-full h-full object-cover"></video>
+          </div>
+          <div class="p-4 bg-white flex justify-between items-center relative z-20">
+            <span class="font-comic text-2xl text-[#4A3B32]">GAMEPLAY CLIP 1</span>
+          </div>
+        </div>
+
+        <!-- VIDEO 2 -->
+        <div class="comic-panel p-2 bg-white transform -rotate-1">
+          <div class="halftone"></div>
+          <div class="relative h-64 w-full overflow-hidden border-2 border-[#4A3B32] rounded bg-black">
+            <video src="WhatsApp Video 2026-07-05 at 7.50.48 AM.mp4" controls loop muted class="w-full h-full object-cover"></video>
+          </div>
+          <div class="p-4 bg-white flex justify-between items-center relative z-20">
+            <span class="font-comic text-2xl text-[#4A3B32]">GAMEPLAY CLIP 2</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD SECTION -->
+  <section id="leaderboard-section" class="relative z-10 py-32 bg-[#FFFDF7] border-b-8 border-[#4A3B32]">
+    <div class="max-w-3xl mx-auto px-6 text-center">
+      <h2 class="font-comic text-6xl md:text-8xl text-[#6B9AC4] text-stroke mb-8 drop-shadow-[5px_5px_0_#4A3B32]">
+        NEKO <span class="text-[#E57373]">LEADERBOARD</span>
+      </h2>
+      
+      <!-- Airdrop Info Panel -->
+      <div class="comic-panel p-6 bg-[#FFD738] rounded-2xl mb-8 border-4 border-[#4A3B32] text-[#4A3B32] text-left relative overflow-hidden">
+        <div class="halftone opacity-10"></div>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-20">
+          <div>
+            <h3 class="font-comic text-3xl mb-1 text-stroke drop-shadow-[2px_2px_0_#FFF]">AIRDROP ROUND 1 (ACTIVE)</h3>
+            <p class="font-mono text-sm uppercase font-bold text-[#4A3B32]/90">Top 5 runners qualify for the airdrop! The round leader updates every 20 minutes. Prize distribution is processed manually.</p>
+          </div>
+          <div class="bg-[#FFF] border-4 border-[#4A3B32] px-4 py-2 rounded-xl text-center min-w-[150px] shadow-[4px_4px_0_#4A3B32]">
+            <span class="block text-xs font-mono font-bold text-gray-500 uppercase">Next Sync In</span>
+            <span id="roundTimer" class="font-comic text-3xl text-[#E57373] text-stroke">20:00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="comic-panel p-6 bg-white rounded-2xl">
+        <div class="halftone"></div>
+        <ol id="landingScoreList" class="text-left font-mono divide-y divide-[#4A3B32] text-xl text-[#4A3B32]">
+          <li class="py-3 text-center text-[#7f8ccc]">Loading leaderboard scores...</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="relative z-10 bg-[#4A3B32] text-[#F2E8D5] py-24 border-t-8 border-[#000]">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-12 text-center md:text-left">
+      <div>
+        <h3 class="font-comic text-5xl mb-4 text-[#F2E8D5] text-stroke drop-shadow-[4px_4px_0_#000]">NEKO</h3>
+        <p class="font-mono text-sm opacity-70 max-w-sm">Disclaimer: $NEKO is a meme coin with utility linked to game scores. Play at your own risk.</p>
+      </div>
+
+      <div class="flex gap-4 justify-center">
+        <a href="https://x.com/nekochase_sol" target="_blank" class="w-16 h-16 bg-[#4A3B32] text-[#F2E8D5] rounded-full flex items-center justify-center font-comic text-3xl border-4 border-[#F2E8D5] hover:bg-[#6B9AC4] hover:-translate-y-2 transition-all">X</a>
+        <a href="https://t.me/NEKOCHASE" target="_blank" class="w-16 h-16 bg-[#4A3B32] text-[#F2E8D5] rounded-full flex items-center justify-center font-comic text-3xl border-4 border-[#F2E8D5] hover:bg-[#98D8A2] hover:-translate-y-2 transition-all">TG</a>
+        <a href="https://dexscreener.com/" target="_blank" class="w-16 h-16 bg-[#4A3B32] text-[#F2E8D5] rounded-full flex items-center justify-center font-comic text-3xl border-4 border-[#F2E8D5] hover:bg-[#FFD738] hover:-translate-y-2 transition-all">DEX</a>
+      </div>
+    </div>
+    <div class="text-center mt-12 pt-8 border-t border-[#FFF]/10 font-mono text-xs opacity-60">
+      &copy; 2026 NEKOCHASE. ALL RIGHTS RESERVED.
+    </div>
+  </footer>
+
+</div>
+
+<!-- ==================== GAME STAGE ==================== -->
+<div class="stage hidden">
+  <canvas id="game"></canvas>
+  <button id="pauseBtn" class="pausebtn hidden" title="Pause (P)">&#10074;&#10074;</button>
+
+  <div id="hud" class="hud hidden">
+    <div id="hudDistance" class="hud-box">0m</div>
+    <div id="hudFish" class="hud-box">&#128031; 0</div>
+    <div id="hudLives" class="hud-box">&#10084;&#10084;&#10084;</div>
+    <div id="hudCombo" class="hud-combo hidden">x2</div>
+    <div id="fxbar" class="fxbar"></div>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+  <div id="flash" class="flash hidden"></div>
+
+  <!-- Replaces old start menu with blank overlay since we start from landing page -->
+  <div id="menu" class="overlay menu-bg hidden"></div>
+
+  <div id="paused" class="overlay hidden">
+    <h2>Paused</h2>
+    <div class="panel">
+      <button id="resumeBtn" class="btn primary">Resume</button>
+      <button id="quitBtn" class="btn">Main Menu</button>
+    </div>
+  </div>
+
+  <div id="gameover" class="overlay hidden">
+    <h2 id="deathMsg">CAUGHT BY THE DOG.</h2>
+    <p class="finalScore">
+      <span id="finalDistance">0m</span> &middot; &#129001; <span id="finalFish">0</span> &middot; Score: <span id="finalScore">0</span>
+    </p>
+    <p class="bestScore">Rank: <span id="finalRank">Wet Paper Paw</span></p>
+    <p class="bestScore hidden" id="newBest">New personal best! &#127878;</p>
+    <div class="panel">
+      <button id="retryBtn" class="btn primary">Play Again</button>
+      <button id="menuBtn" class="btn">Main Menu</button>
+    </div>
+  </div>
+
+  <div id="leaderboard" class="overlay hidden">
+    <h2>Leaderboard</h2>
+    <ol id="scoreList" class="scores"></ol>
+    <div class="panel">
+      <button id="closeLbBtn" class="btn primary">Back</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mobile Menu toggle
+  window.toggleMobileMenu = function() {
+    const el = document.getElementById('mobile-menu');
+    el.classList.toggle('hidden');
+    el.classList.toggle('flex');
+  };
+
+  // Copy CA logic
+  window.copyContract = function(btn) {
+    const caEl = document.getElementById('ca-text');
+    const caText = caEl ? caEl.textContent.trim() : 'TBA';
+    if (caText === 'TBA' || caText === '') {
+      const orig = btn.textContent;
+      btn.textContent = 'TBA!';
+      btn.style.background = '#E57373';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.background = '';
+      }, 1500);
+      return;
+    }
+    navigator.clipboard.writeText(caText).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'COPIED!';
+      btn.style.background = '#16c784';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.background = '';
+      }, 1500);
+    });
+  };
+
+  // Pop / spin animations
+  window.spinImage = function(img) {
+    img.classList.add('animate-heartbeat');
+    setTimeout(() => img.classList.remove('animate-heartbeat'), 800);
+  };
+
+  // Save image helper
+  window.saveImage = function(btn) {
+    const card = btn.closest('.comic-panel');
+    const img = card.querySelector('img');
+    if (img) {
+      const link = document.createElement('a');
+      link.href = img.src;
+      link.download = img.src.split('/').pop() || 'neko-album.jpg';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  // Solana Wallet Connect & $NEKO Token Verification
+  let walletPublicKey = null;
+  let nekoBalance = 0;
+  const NEKO_MINT_ADDRESS = ""; // Will be updated once CA is live
+  const THRESHOLD = 200000;
+
+  window.connectSolanaWallet = async function() {
+    if (walletPublicKey) {
+      // Disconnect wallet
+      walletPublicKey = null;
+      window.walletPublicKey = null;
+      nekoBalance = 0;
+      
+      // Revert UI buttons
+      const navBtn = document.getElementById("navWalletBtn");
+      if (navBtn) {
+        navBtn.textContent = "CONNECT WALLET";
+        navBtn.className = "pipe-btn bg-[#E57373] text-white";
+      }
+      
+      const playBtn = document.getElementById("playWalletBtn");
+      if (playBtn) playBtn.classList.remove("hidden");
+      
+      const statusText = document.getElementById("walletStatusText");
+      if (statusText) statusText.textContent = "Wallet not connected. Connect to play.";
+      
+      document.getElementById("landingPlayerName").setAttribute("disabled", "true");
+      document.getElementById("landingPlayerTwitter").setAttribute("disabled", "true");
+      
+      const startBtn = document.getElementById("startGameBtn");
+      startBtn.setAttribute("disabled", "true");
+      startBtn.className = "play-game-btn pipe-btn bg-[#9b9b9b] text-white text-3xl py-4 w-full cursor-not-allowed opacity-60";
+      return;
+    }
+
+    // Open selector modal
+    document.getElementById("wallet-modal").classList.remove("hidden");
+  };
+
+  window.closeWalletModal = function() {
+    document.getElementById("wallet-modal").classList.add("hidden");
+  };
+
+  window.selectSolanaWallet = async function(type) {
+    closeWalletModal();
+    let provider = null;
+
+    try {
+      if (type === 'phantom') {
+        provider = window.phantom?.solana || window.solana;
+        if (!provider || !provider.isPhantom) {
+          alert("Phantom Wallet not found! Please install the extension.");
+          window.open("https://phantom.app/", "_blank");
+          return;
+        }
+      } else if (type === 'solflare') {
+        provider = window.solflare || window.solana;
+        if (!provider || !provider.isSolflare) {
+          alert("Solflare Wallet not found! Please install the extension.");
+          window.open("https://solflare.com/", "_blank");
+          return;
+        }
+      } else if (type === 'backpack') {
+        provider = window.backpack;
+        if (!provider) {
+          alert("Backpack Wallet not found! Please install the extension.");
+          window.open("https://backpack.app/", "_blank");
+          return;
+        }
+      } else if (type === 'okx') {
+        provider = window.okxwallet?.solana;
+        if (!provider) {
+          alert("OKX Wallet not found! Please install the extension.");
+          window.open("https://www.okx.com/web3", "_blank");
+          return;
+        }
+      } else if (type === 'standard') {
+        provider = window.solana;
+        if (!provider) {
+          alert("No standard Solana wallet provider detected on this browser.");
+          return;
+        }
+      }
+
+      // Connect
+      const resp = await provider.connect();
+      walletPublicKey = resp.publicKey.toString();
+      window.walletPublicKey = walletPublicKey; // expose globally to game.js
+      
+      await checkNekoBalance();
+    } catch (err) {
+      console.error("Wallet connection failed:", err);
+      alert("Failed to connect wallet: " + err.message);
+    }
+  };
+
+  async function checkNekoBalance() {
+    if (!walletPublicKey) return;
+
+    const shortenedWallet = walletPublicKey.slice(0, 4) + "..." + walletPublicKey.slice(-4);
+    
+    // Check if CA is TBA
+    const caEl = document.getElementById("ca-text");
+    const caText = caEl ? caEl.textContent.trim() : "TBA";
+
+    if (caText === "TBA" || caText === "" || !NEKO_MINT_ADDRESS) {
+      // TBA Simulated Phase: Give sufficient balance for gameplay demonstration
+      nekoBalance = 250000;
+      showWalletConnected(shortenedWallet, nekoBalance, true);
+    } else {
+      // Fetch SPL token balance from Mainnet Beta
+      try {
+        const connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com");
+        const pubKey = new solanaWeb3.PublicKey(walletPublicKey);
+        const mintKey = new solanaWeb3.PublicKey(NEKO_MINT_ADDRESS);
+
+        const accounts = await connection.getParsedTokenAccountsByOwner(pubKey, {
+          mint: mintKey
+        });
+
+        if (accounts.value.length === 0) {
+          nekoBalance = 0;
+        } else {
+          nekoBalance = accounts.value[0].account.data.parsed.info.tokenAmount.uiAmount || 0;
+        }
+
+        showWalletConnected(shortenedWallet, nekoBalance, false);
+      } catch (err) {
+        console.error("RPC balance fetch failed, using dev mock:", err);
+        nekoBalance = 250000; // fallback for sandbox test
+        showWalletConnected(shortenedWallet, nekoBalance, true);
+      }
+    }
+  }
+
+  function showWalletConnected(walletAddress, balance, isMocked) {
+    // Nav Button update
+    const navBtn = document.getElementById("navWalletBtn");
+    if (navBtn) {
+      navBtn.textContent = walletAddress + ` (${balance.toLocaleString()} $NEKO)`;
+      navBtn.className = "pipe-btn bg-[#98D8A2] text-[#4A3B32]";
+    }
+
+    // Status Panel update
+    const statusText = document.getElementById("walletStatusText");
+    const playBtn = document.getElementById("playWalletBtn");
+    if (playBtn) playBtn.classList.add("hidden");
+
+    if (balance >= THRESHOLD) {
+      statusText.innerHTML = `Connected: <span class="text-[#16c784] font-bold">${walletAddress}</span><br>Balance: <span class="text-[#16c784] font-bold">${balance.toLocaleString()} $NEKO</span>` + 
+        (isMocked ? `<br><span class="text-xs text-orange-500 font-mono font-bold">(Simulated Phase - CA TBA)</span>` : "");
+
+      // Enable fields
+      document.getElementById("landingPlayerName").removeAttribute("disabled");
+      document.getElementById("landingPlayerTwitter").removeAttribute("disabled");
+      
+      const startBtn = document.getElementById("startGameBtn");
+      startBtn.removeAttribute("disabled");
+      startBtn.className = "play-game-btn pipe-btn bg-[#16c784] text-white text-3xl py-4 w-full animate-wiggle";
+    } else {
+      statusText.innerHTML = `Connected: <span class="text-[#E57373] font-bold">${walletAddress}</span><br>Balance: <span class="text-[#E57373] font-bold">${balance.toLocaleString()} $NEKO</span><br><span class="text-[#E57373] text-sm font-bold">Need at least 200,000 $NEKO to play!</span>`;
+
+      // Disable fields
+      document.getElementById("landingPlayerName").setAttribute("disabled", "true");
+      document.getElementById("landingPlayerTwitter").setAttribute("disabled", "true");
+      
+      const startBtn = document.getElementById("startGameBtn");
+      startBtn.setAttribute("disabled", "true");
+      startBtn.className = "play-game-btn pipe-btn bg-[#9b9b9b] text-white text-3xl py-4 w-full cursor-not-allowed opacity-60";
+    }
+  }
+
+  // Smooth Scrolling Event Listeners for nav anchors
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href');
+      if (targetId === '#') return;
+      const targetEl = document.querySelector(targetId);
+      if (targetEl) {
+        window.scrollTo({
+          top: targetEl.offsetTop - 100, // navbar height padding
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+
+  // ScrollSpy active link highlighting
+  window.addEventListener("DOMContentLoaded", () => {
+    // 20-minute round countdown timer
+    const timerEl = document.getElementById("roundTimer");
+    if (timerEl) {
+      function updateTimer() {
+        const now = new Date();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+        
+        // Calculate remaining minutes to the next 20-minute interval (:00, :20, :40)
+        let targetMin = Math.ceil((minutes + 0.01) / 20) * 20;
+        
+        let diffMin = targetMin - minutes - 1;
+        let diffSec = 60 - seconds;
+        
+        if (diffSec === 60) {
+          diffSec = 0;
+          diffMin += 1;
+        }
+        
+        const displayMin = String(diffMin).padStart(2, '0');
+        const displaySec = String(diffSec).padStart(2, '0');
+        timerEl.textContent = `${displayMin}:${displaySec}`;
+      }
+      setInterval(updateTimer, 1000);
+      updateTimer();
+    }
+
+    const sections = document.querySelectorAll("section[id]");
+    const navLinks = document.querySelectorAll(".nav-link");
+
+    function scrollSpy() {
+      let current = "";
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+      sections.forEach((section) => {
+        const sectionHeight = section.offsetHeight;
+        const sectionTop = section.offsetTop - 180; // offset for nav bar height and margins
+        if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+          current = section.getAttribute("id");
+        }
+      });
+
+      navLinks.forEach((link) => {
+        link.classList.remove("active");
+        link.classList.remove("text-[#6B9AC4]", "font-bold");
+
+        const href = link.getAttribute("href");
+        if (href === `#${current}`) {
+          link.classList.add("active");
+          if (link.tagName === "A" && !link.classList.contains("pipe-btn")) {
+            // Mobile link visual active highlight
+            link.classList.add("text-[#6B9AC4]", "font-bold");
+          }
+        }
+      });
+    }
+
+    window.addEventListener("scroll", scrollSpy);
+    scrollSpy(); // initial run
+  });
+</script>
+<script type="module" src="game.js?v=13"></script>
+</body>
+</html>

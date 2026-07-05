@@ -1,0 +1,463 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  /* --- NEW PASTEL PALETTE --- */
+  /* Background: Sandy/Beige from the image background */
+  --pastel-sand: #F2E8D5;
+
+  /* Primary: Muted Denim Blue (The shirt) */
+  --pastel-blue: #6B9AC4;
+
+  /* Accent: Pastel Frog Green (The skin) */
+  --pastel-green: #98D8A2;
+
+  /* Accent: Soft Heart Red */
+  --pastel-red: #E57373;
+
+  /* Text/Outlines: Soft Dark Brown (instead of harsh black) */
+  --pastel-dark: #4A3B32;
+
+  /* Panels: Cream/Off-white */
+  --pastel-cream: #FFFDF7;
+
+  /* Mapping variables to logic */
+  --bg-color: var(--pastel-sand);
+  --main-color: var(--pastel-blue);
+  --text-color: var(--pastel-dark);
+}
+
+body {
+  font-family: "Comic Sans MS", "Segoe UI", sans-serif;
+  min-height: 100vh;
+  background-color: #0d1030;
+  overflow-y: auto;
+}
+
+body.landing-active {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  overflow-x: hidden;
+  font-family: 'Permanent Marker', cursive;
+  /* Simple noise texture for the "grainy" look */
+  background-image: url("https://www.transparenttextures.com/patterns/noise-lines.png");
+}
+
+body:not(.landing-active) {
+  overflow: hidden;
+}
+
+/* The Grain Effect Overlay (To match the glittery sand look) */
+body.landing-active .grain-overlay {
+  display: block;
+}
+
+.grain-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+.font-comic {
+  font-family: 'Bangers', cursive;
+  letter-spacing: 2px;
+}
+
+.font-marker {
+  font-family: 'Permanent Marker', cursive;
+}
+
+/* --- Animations --- */
+@keyframes float-hero {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(2deg);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1) rotate(3deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.1); }
+  40% { transform: scale(1); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.animate-float {
+  animation: float-hero 4s ease-in-out infinite;
+}
+
+.animate-pop {
+  animation: pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.animate-wiggle {
+  animation: wiggle 3s ease-in-out infinite;
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+.animate-heartbeat {
+  animation: heartbeat 0.8s ease-in-out;
+}
+
+/* --- Components --- */
+
+/* Comic Panel Card - Pastel Style */
+.comic-panel {
+  background: var(--pastel-cream);
+  border: 4px solid var(--pastel-dark);
+  box-shadow: 8px 8px 0px rgba(74, 59, 50, 0.2);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+  border-radius: 12px;
+}
+
+.comic-panel:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 12px 12px 0px var(--pastel-blue);
+}
+
+/* Halftone overlay - lighter now */
+.halftone {
+  background-image: radial-gradient(circle, var(--pastel-blue) 1px, transparent 1.5px);
+  background-size: 12px 12px;
+  opacity: 0.1;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Pipe Button - Pastel Style */
+.pipe-btn {
+  background: var(--pastel-blue);
+  border: 3px solid var(--pastel-dark);
+  color: var(--pastel-cream);
+  font-family: 'Bangers', cursive;
+  font-size: 1.5rem;
+  padding: 0.5rem 2rem;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-block;
+  text-decoration: none;
+  border-radius: 10px;
+  box-shadow: 4px 4px 0 var(--pastel-dark);
+}
+
+.pipe-btn:hover {
+  background: var(--pastel-green);
+  transform: scale(1.05) rotate(-2deg);
+  box-shadow: 6px 6px 0 var(--pastel-dark);
+  color: var(--pastel-dark);
+}
+
+/* Nav Link ScrollSpy active styles */
+.nav-link {
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-link.active.pipe-btn {
+  transform: scale(1.1) rotate(-3deg) !important;
+  box-shadow: 6px 6px 0 var(--pastel-dark) !important;
+  border-color: var(--pastel-dark) !important;
+  z-index: 20;
+}
+
+/* Text Stroke - Softer */
+.text-stroke {
+  -webkit-text-stroke: 1.5px var(--pastel-dark);
+  text-shadow: 3px 3px 0px rgba(255, 255, 255, 0.5);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--pastel-sand);
+  border-left: 2px solid var(--pastel-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pastel-blue);
+  border: 2px solid var(--pastel-dark);
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pastel-green);
+}
+
+/* ==================== 3D GAME STAGE STYLES ==================== */
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #0d1030;
+  touch-action: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  overflow-y: auto;
+  gap: 10px;
+  background: rgba(8, 10, 34, .82);
+  color: #fff;
+  padding: 16px;
+}
+
+.overlay.hidden { display: none; }
+
+.overlay.menu-bg {
+  background:
+    linear-gradient(rgba(8, 10, 34, .30), rgba(8, 10, 34, .55)),
+    url("image/menu-bg.jpg") center / cover no-repeat,
+    rgba(8, 10, 34, .82);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, .8);
+}
+
+.pausebtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 2px solid #ffd738;
+  background: rgba(10, 12, 40, .75);
+  color: #ffd738;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.pausebtn:hover { filter: brightness(1.3); }
+.pausebtn.hidden { display: none; }
+
+.hud {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.hud.hidden { display: none; }
+
+.hud-box {
+  background: rgba(10, 12, 40, .75);
+  border: 2px solid #ffd738;
+  border-radius: 10px;
+  padding: 5px 14px;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.15rem;
+}
+
+.hud-combo {
+  color: #ffd738;
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,.7);
+  animation: combopop .25s ease;
+}
+
+.hud-combo.hidden { display: none; }
+
+@keyframes combopop {
+  0% { transform: scale(1.6); }
+  100% { transform: scale(1); }
+}
+
+.toast {
+  position: absolute;
+  top: 26%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  background: rgba(10, 12, 40, .85);
+  border: 2px solid #ffd738;
+  border-radius: 14px;
+  padding: 10px 26px;
+  color: #ffd738;
+  font-weight: bold;
+  font-size: 1.6rem;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: toastin 1.8s ease forwards;
+}
+
+.toast.hidden { display: none; }
+
+.fxbar { display: flex; flex-direction: column; gap: 4px; }
+
+.flash {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(224, 40, 30, .55) 100%);
+  pointer-events: none;
+  animation: hitflash .35s ease-out forwards;
+}
+
+.flash.hidden { display: none; animation: none; }
+
+@keyframes hitflash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.fxpill {
+  background: rgba(10, 12, 40, .8);
+  border-radius: 999px;
+  padding: 3px 12px;
+  color: #fff;
+  font-size: .8rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border: 1.5px solid currentColor;
+}
+
+.fxpill.nine { color: #ffb3c8; }
+.fxpill.zoom { color: #ffd738; }
+.fxpill.pump { color: #35e0a1; }
+
+@keyframes toastin {
+  0% { opacity: 0; transform: translateX(-50%) scale(1.5); }
+  12% { opacity: 1; transform: translateX(-50%) scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-18px) scale(.9); }
+}
+
+.menu-cat { width: 96px; filter: drop-shadow(0 4px 10px rgba(0,0,0,.5)); }
+
+.overlay h2 { font-size: 2.2rem; }
+
+.subtitle { color: #ffd738; }
+
+.panel {
+  margin-top: 8px;
+  width: min(320px, 90%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(20, 24, 58, .85);
+  border: 1px solid #3d4aa0;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.panel input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #4a58b8;
+  background: #1a1f4a;
+  color: #fff;
+  font-family: inherit;
+  outline: none;
+}
+
+.panel input:focus { border-color: #8fa2ff; }
+
+.btn {
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #2c3468;
+  color: #dfe5ff;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.btn:hover { filter: brightness(1.15); }
+
+.btn.primary {
+  background: linear-gradient(180deg, #e0402e, #b8291a);
+  color: #fff;
+  font-weight: bold;
+}
+
+.howto { margin-top: 4px; font-size: .82rem; color: #aab4e8; line-height: 1.6; }
+
+.finalScore { font-size: 1.3rem; }
+.bestScore { color: #ffd738; }
+
+.scores {
+  list-style-position: inside;
+  width: min(340px, 90%);
+  max-height: 300px;
+  overflow-y: auto;
+  background: rgba(20, 24, 58, .85);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: left;
+}
+
+.scores li { padding: 5px 4px; border-bottom: 1px solid #2c3468; }
+.scores li:last-child { border-bottom: none; }
+.scores .who { color: #dfe5ff; }
+.scores .tw { color: #7f8ccc; font-size: .8rem; }
+.scores .pts { float: right; color: #ffd738; font-weight: bold; }
+.scores .empty { color: #7f8ccc; text-align: center; border: none; }

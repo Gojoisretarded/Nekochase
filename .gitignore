@@ -1,0 +1,39 @@
+# IDE / Editor folders
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Python local server temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Anti-gravity and Agent specific folders
+.agents/
+.gemini/
+.claude/
+.antigravityignore
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Large media files (do not push to GitHub)
+*.mp4
+*.mpeg
+*.avi
+*.mov
+*.mkv
+
+# Local dev server
+serve.py
