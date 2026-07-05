@@ -1090,18 +1090,69 @@ window.addEventListener("resize", resize);
 
 
 // ---------- leaderboard ----------
-function getScores() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
-  catch (e) { return []; }
+const KVDB_URL = "https://kvdb.io/NekoRound1_8D3sJ2mK9aPqXy2w/leaderboard";
+
+async function getScores() {
+  try {
+    const res = await fetch(KVDB_URL);
+    if (!res.ok) {
+      if (res.status === 404) return [];
+      throw new Error("HTTP " + res.status);
+    }
+    const data = await res.json();
+    return data || [];
+  } catch (e) {
+    console.warn("Using offline scores fallback:", e);
+    try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
+    catch (err) { return []; }
+  }
 }
-function saveScore(entry) {
-  const scores = getScores();
-  scores.push(entry);
+
+async function saveScore(entry) {
+  let scores = [];
+  try {
+    const res = await fetch(KVDB_URL);
+    if (res.ok) {
+      scores = await res.json() || [];
+    }
+  } catch (e) {
+    console.warn("Could not fetch current scores for merge, using local fallback:", e);
+    try { scores = JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch (err) {}
+  }
+
+  // Deduplicate: If this wallet already exists, keep only the highest score
+  if (entry.wallet) {
+    const idx = scores.findIndex(s => s.wallet === entry.wallet);
+    if (idx !== -1) {
+      if (entry.score > scores[idx].score) {
+        scores.splice(idx, 1);
+        scores.push(entry);
+      }
+    } else {
+      scores.push(entry);
+    }
+  } else {
+    scores.push(entry);
+  }
+
   scores.sort((a, b) => b.score - a.score);
-  localStorage.setItem(LS_KEY, JSON.stringify(scores.slice(0, 10)));
+  const trimmed = scores.slice(0, 15);
+
+  try { localStorage.setItem(LS_KEY, JSON.stringify(trimmed)); } catch (e) {}
+
+  try {
+    await fetch(KVDB_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(trimmed)
+    });
+  } catch (e) {
+    console.error("Failed to upload score to global database:", e);
+  }
 }
-function renderScores() {
-  const scores = getScores();
+
+async function renderScores() {
+  const scores = await getScores();
   
   // Render in-game leaderboard overlay
   if (ui.scoreList) {
@@ -1637,7 +1688,7 @@ function update(dt) {
   updateHud();
 }
 
-function gameOver(kind) {
+async function gameOver(kind) {
   setState("gameover");
   audio.die();
   audio.stopMusic();
@@ -1652,9 +1703,13 @@ function gameOver(kind) {
   ui.finalFish.textContent = candleCount;
   ui.finalScore.textContent = finalScore;
   ui.finalRank.textContent = rankFor(finalScore);
-  const best = getScores()[0];
+  
+  const scoresList = await getScores();
+  const best = scoresList[0];
   ui.newBest.classList.toggle("hidden", !(finalScore > 0 && (!best || finalScore > best.score)));
-  saveScore({ name: playerInfo.name, twitter: playerInfo.twitter, wallet: playerInfo.wallet, score: finalScore });
+  
+  await saveScore({ name: playerInfo.name, twitter: playerInfo.twitter, wallet: playerInfo.wallet, score: finalScore });
+  await renderScores();
   setTimeout(() => ui.gameover.classList.remove("hidden"), 600);
 }
 
@@ -1679,8 +1734,15 @@ function frame(t) {
 }
 
 reset();
-renderScores();
+renderScores().catch(console.error);
 requestAnimationFrame((t) => { last = t; requestAnimationFrame(frame); });
+
+// Auto-refresh global scores list every 30 seconds when not playing
+setInterval(() => {
+  if (state !== "playing") {
+    renderScores().catch(console.error);
+  }
+}, 30000);
 
 // debug handle for automated checks
 window.__neko = {
