@@ -7,8 +7,8 @@
 <link rel="stylesheet" href="style.css?v=13">
 <link rel="icon" type="image/jpeg" href="image/WhatsApp Image 2026-07-05 at 4.05.38 PM.jpeg">
 
-<!-- Solana Web3.js -->
-<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+<!-- Solana Web3.js Locked to Stable v1 -->
+<script src="https://unpkg.com/@solana/web3.js@1.95.4/lib/index.iife.min.js"></script>
 
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -552,34 +552,53 @@
   window.selectSolanaWallet = async function(type) {
     closeWalletModal();
     let provider = null;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     try {
       if (type === 'phantom') {
         provider = window.phantom?.solana || window.solana;
         if (!provider || !provider.isPhantom) {
-          alert("Phantom Wallet not found! Please install the extension.");
-          window.open("https://phantom.app/", "_blank");
+          if (isMobile) {
+            const url = "https://phantom.app/ul/browse/" + encodeURIComponent(window.location.href);
+            window.open(url, "_blank");
+          } else {
+            alert("Phantom Wallet not found! Please install the extension.");
+            window.open("https://phantom.app/", "_blank");
+          }
           return;
         }
       } else if (type === 'solflare') {
         provider = window.solflare || window.solana;
         if (!provider || !provider.isSolflare) {
-          alert("Solflare Wallet not found! Please install the extension.");
-          window.open("https://solflare.com/", "_blank");
+          if (isMobile) {
+            const url = "https://solflare.com/ul/v1/browse?url=" + encodeURIComponent(window.location.href) + "&ref=" + encodeURIComponent(window.location.origin);
+            window.open(url, "_blank");
+          } else {
+            alert("Solflare Wallet not found! Please install the extension.");
+            window.open("https://solflare.com/", "_blank");
+          }
           return;
         }
       } else if (type === 'backpack') {
         provider = window.backpack;
         if (!provider) {
-          alert("Backpack Wallet not found! Please install the extension.");
-          window.open("https://backpack.app/", "_blank");
+          if (isMobile) {
+            window.open("https://backpack.app/", "_blank");
+          } else {
+            alert("Backpack Wallet not found! Please install the extension.");
+            window.open("https://backpack.app/", "_blank");
+          }
           return;
         }
       } else if (type === 'okx') {
         provider = window.okxwallet?.solana;
         if (!provider) {
-          alert("OKX Wallet not found! Please install the extension.");
-          window.open("https://www.okx.com/web3", "_blank");
+          if (isMobile) {
+            window.open("https://www.okx.com/download", "_blank");
+          } else {
+            alert("OKX Wallet not found! Please install the extension.");
+            window.open("https://www.okx.com/web3", "_blank");
+          }
           return;
         }
       } else if (type === 'standard') {
@@ -602,6 +621,42 @@
     }
   };
 
+  async function fetchTokenBalance(walletPubKeyStr, mintAddrStr) {
+    const rpcEndpoints = [
+      "https://rpc.ankr.com/solana",
+      "https://api.mainnet-beta.solana.com",
+      "https://api.mainnet.solana.com"
+    ];
+
+    let lastError = null;
+    for (let rpc of rpcEndpoints) {
+      try {
+        const connection = new solanaWeb3.Connection(rpc, "confirmed");
+        const pubKey = new solanaWeb3.PublicKey(walletPubKeyStr);
+        const mintKey = new solanaWeb3.PublicKey(mintAddrStr);
+
+        const accounts = await connection.getParsedTokenAccountsByOwner(pubKey, {
+          mint: mintKey
+        });
+
+        if (accounts.value.length === 0) {
+          return 0;
+        } else {
+          let maxBalance = 0;
+          for (const acc of accounts.value) {
+            const val = acc.account.data.parsed.info.tokenAmount.uiAmount || 0;
+            if (val > maxBalance) maxBalance = val;
+          }
+          return maxBalance;
+        }
+      } catch (err) {
+        console.warn(`RPC endpoint ${rpc} failed:`, err);
+        lastError = err;
+      }
+    }
+    throw lastError || new Error("All Solana RPC endpoints failed to respond.");
+  }
+
   async function checkNekoBalance() {
     if (!walletPublicKey) return;
 
@@ -616,26 +671,14 @@
       nekoBalance = 250000;
       showWalletConnected(shortenedWallet, nekoBalance, true);
     } else {
-      // Fetch SPL token balance from Mainnet Beta
+      // Fetch SPL token balance using robust RPC list
       try {
-        const connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com");
-        const pubKey = new solanaWeb3.PublicKey(walletPublicKey);
-        const mintKey = new solanaWeb3.PublicKey(NEKO_MINT_ADDRESS);
-
-        const accounts = await connection.getParsedTokenAccountsByOwner(pubKey, {
-          mint: mintKey
-        });
-
-        if (accounts.value.length === 0) {
-          nekoBalance = 0;
-        } else {
-          nekoBalance = accounts.value[0].account.data.parsed.info.tokenAmount.uiAmount || 0;
-        }
-
+        nekoBalance = await fetchTokenBalance(walletPublicKey, NEKO_MINT_ADDRESS);
         showWalletConnected(shortenedWallet, nekoBalance, false);
       } catch (err) {
-        console.error("RPC balance fetch failed, using dev mock:", err);
-        nekoBalance = 250000; // fallback for sandbox test
+        console.error("RPC balance fetch failed, using fallback mock:", err);
+        alert("Warning: Solana network RPC connection is congested. Activating backup simulation mode.");
+        nekoBalance = 250000;
         showWalletConnected(shortenedWallet, nekoBalance, true);
       }
     }
