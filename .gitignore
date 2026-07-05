@@ -30,6 +30,8 @@ yarn-error.log*
 
 # Large media files (do not push to GitHub)
 *.mp4
+!WhatsApp Video 2026-07-05 at 7.41.32 AM.mp4
+!WhatsApp Video 2026-07-05 at 7.50.48 AM.mp4
 *.avi
 *.mov
 *.mkv
